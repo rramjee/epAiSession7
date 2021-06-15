@@ -47,18 +47,20 @@ def outer_track(fn:"function")->"function":
         global add_c
         global div_c
         global mul_c
-        
-        if(fn.__name__=='mul'):
-            mul_c += 1
-            func_counter[fn.__name__] = mul_c
-            
-        if(fn.__name__=='add'):
-            add_c += 1
-            func_counter[fn.__name__] = add_c
-            
-        if(fn.__name__=='div'):
-            div_c += 1
-            func_counter[fn.__name__] = div_c
+        if fn.__name__:
+            if(fn.__name__=='mul'):
+                mul_c += 1
+                func_counter[fn.__name__] = mul_c 
+            elif(fn.__name__=='add'):
+                add_c += 1
+                func_counter[fn.__name__] = add_c   
+            elif(fn.__name__=='div'):
+                div_c += 1
+                func_counter[fn.__name__] = div_c
+            else:
+                raise ValueError("Function not present to be tracked")
+        else:
+            raise TypeError("No Function name passed")
    
         return func_counter
     
@@ -68,14 +70,29 @@ def counter(fn:"function",dict_c:"dict"):
     '''a closure that counts how many times a function was called. Write a new one that can keep a track of how many times 
     add/mul/div functions were called, and update a global dictionary variable with the counts '''
     def inner(*args, **kwargs):
-        if (fn.__name__) == 'add':
-            dict_c[fn.__name__] += 1
-        elif (fn.__name__) == 'mul':
-            dict_c[fn.__name__] += 1
-        elif (fn.__name__) == 'div':
-            dict_c[fn.__name__] += 1
-        return(dict_c)
+        if dict_c:
+            if (fn.__name__) == 'add':
+                if fn.__name__ in dict_c:
+                    dict_c[fn.__name__] += 1
+                else:
+                    raise ValueError("key not present")
+            elif (fn.__name__) == 'mul':
+                if fn.__name__ in dict_c:
+                    dict_c[fn.__name__] += 1
+                else:
+                    raise ValueError("key not present")
+            elif (fn.__name__) == 'div':
+                if fn.__name__ in dict_c:
+                    dict_c[fn.__name__] += 1
+                else:
+                    raise ValueError("key not present")
+            else:
+                raise ValueError("function not present in the dictionary")
+            return(dict_c)
+        else:
+            raise ValueError ("Do not pass empty dictionary")
     return inner
+        
     
 
 def mul(a:"int", b:"int", c:"int")->"int":
@@ -106,7 +123,7 @@ if __name__ == '__main__':
     print(f(1,2,3))
     print(f.__code__.co_freevars)
     g = getnextfibonacci()
-    print(g(1964188))
+    print(g.__code__.co_freevars)
     mult = counter(mul,counters)
     add = counter(add,counters)
     div = counter(div,counters)

@@ -54,6 +54,10 @@ def test_closure_fibcheck():
     fn=session7.getnextfibonacci()
     assert True == (fn.__closure__ != "") ,"use closure"
 
+def test_check_free_var():
+    fn=session7.getnextfibonacci()
+    assert ('fibonacci',) == fn.__code__.co_freevars,"free variable needed"
+
 def test_closure_doc_func():
     a1 = session7.docstringcounter(session7.add)
     assert True == (a1.__closure__ != "") ,"use closure"
@@ -81,18 +85,54 @@ def test_fucntion_counter_add():
         session7.outer_track(session7.add)()
     assert session7.func_counter['add'] == 5,"There is a counting error "
 
-def test_fucntion_counter_2_add():
-    for i in range(5):
-        session7.counter(session7.add,session7.counters)()
-    assert session7.counters['add'] == 5,"There is a counting error "
-
 def test_fucntion_counter_mul():
     
     for i in range(9):
         session7.outer_track(session7.mul)()
     assert session7.func_counter['mul'] == 9,"There is a counting error "
 
-def test_diff_fucntion_counter():
+def test_fucntion_counter_div():
+    
+    for i in range(10):
+        session7.outer_track(session7.div)()
+    assert session7.func_counter['div'] == 10,"There is a counting error "
+
+def test_outer_track_function_notpresent():
+    with pytest.raises(ValueError) as e_info:
+        session7.outer_track(session7.merge)()
+
+def test_outer_track_no_param():
+    with pytest.raises(TypeError) as e_info:
+        session7.outer_track()()
+
+def test_fucntion_counter_2_add():
+    counters_test = {'add':10,'mul':0,'div':1}
+    for i in range(5):
+        session7.counter(session7.add,session7.counters)()
+    assert session7.counters['add'] == 5,"There is a counting error "
+
+def test_diff_fucntion_add_counter():
+    counters_test = {'add':10,'mul':0,'div':1}
+    for i in range(10):
+        session7.counter(session7.add,counters_test)()
+    assert counters_test['add'] == 20,"There is a counting error "
+
+def test_diff_function_div_notpresent():
+    counters_test = {'add':10,'mul':0}
+    with pytest.raises(ValueError) as e_info:
+        session7.counter(session7.div,counters_test)()
+
+def test_diff_function_empty_dict():
+    counters_test = {}
+    with pytest.raises(ValueError) as e_info:
+        session7.counter(session7.add,counters_test)()
+
+def test_diff_function_not_present():
+    counters_test = {'add':0,'mul':0,'div':1}
+    with pytest.raises(ValueError) as e_info:
+        session7.counter(session7.merge,counters_test)()
+
+def test_diff_fucntion_div_counter():
     counters_test = {'add':0,'mul':0,'div':1}
     for i in range(5):
         session7.counter(session7.div,counters_test)()
